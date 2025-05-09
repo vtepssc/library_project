@@ -9,13 +9,17 @@ def random_event():
 conn = sqlite3.connect('library.db')
 cursor = conn.cursor()
 
-event_date = datetime.now()
-
 try:
-    for i in range(10):
-        wait(1)
-        event_date_str = event_date.strftime("%Y-%m-%d %H:%M:%S") 
-
+    event_date = datetime.now()  # Initialize event_date
+    for i in range(100):
+        # Add 1 day and a random number of hours, minutes, and seconds
+        event_date += timedelta(
+            days=1,
+            hours=random.randint(0, 23),
+            minutes=random.randint(0, 59),
+            seconds=random.randint(0, 59)
+        )
+        event_date_str = event_date.strftime("%Y-%m-%d %H:%M:%S")
         action = random_event()
 
         # check how many records are in the library.db's loans table
@@ -33,12 +37,12 @@ try:
         available_books = cursor.execute("SELECT COUNT(*) FROM book_availability WHERE available = 1").fetchone()[0]
         print(f"Available books: {available_books}")
         if available_books <= 5:
-            print("current available_books is:", available_books ,"returning a book")
+            print("current available_books is:", available_books, "returning a book")
             action = "return"
 
         # determine which books are available for checkout
-        cursor.execute("SELECT book_id FROM book_availability WHERE available = true")
-                    
+        cursor.execute("SELECT book_id FROM book_availability WHERE available = 1")
+
         if action == "checkout":
             # Randomly select a user
             cursor.execute("SELECT user_id FROM users")
@@ -58,7 +62,7 @@ try:
             print(f"Checked out Book ID: {book_id} by User ID: {user_id} on {event_date_str}")
 
         elif action == "return":
-            # get a random unreturned loan record 
+            # get a random unreturned loan record
             cursor.execute("SELECT loan_id, book_id, user_id, loan_date FROM loans WHERE return_date IS NULL")
             loan_records = cursor.fetchall()
 
@@ -75,7 +79,6 @@ try:
             print(f"Returned Book ID: {book_id} by User ID: {user_id} on {event_date_str}")
 except Exception as e:
     print(f"An error occurred: {e}")
-
 
 conn.commit()
 conn.close()
