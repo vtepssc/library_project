@@ -22,4 +22,7 @@ subprocess.run(["python", "populate_db.py"], check=True)
 print("Running simulate_events.py...")
 subprocess.run(["python", "simulate_events.py"], check=True)
 
+# Generate reports
+print("Generating reports...")
+subprocess.run(["python", "views.py"], check=True)
 print("All scripts executed successfully.")
