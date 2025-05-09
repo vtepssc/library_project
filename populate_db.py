@@ -32,9 +32,15 @@ books = [
     ("The Brothers Karamazov", "Fyodor Dostoevsky", "Philosophical Fiction", 1880),
     ("Crime and Punishment", "Fyodor Dostoevsky", "Psychological Fiction", 1866),
     ("The Picture of Dorian Gray", "Oscar Wilde", "Philosophical Fiction", 1890),
-
+    ("The Alchemist", "Paulo Coelho", "Adventure", 1988),
+    ("The Fault in Our Stars", "John Green", "Young Adult Fiction", 2012),
+    ("The Hunger Games", "Suzanne Collins", "Dystopian", 2008),
+    ("Harry Potter and the Sorcerer's Stone", "J.K. Rowling", "Fantasy", 1997),
+    ("The Kite Runner", "Khaled Hosseini", "Historical Fiction", 2003),
+    ("The Book Thief", "Markus Zusak", "Historical Fiction", 2005),
+    ("The Road", "Cormac McCarthy", "Post-Apocalyptic Fiction", 2006),
 ]
-cursor.executemany("INSERT INTO books (title, author, genre, year) VALUES (?, ?, ?, ?)", books)
+cursor.executemany("INSERT OR IGNORE INTO books (title, author, genre, year) VALUES (?, ?, ?, ?)", books)
 
 conn.commit()
 conn.close()
