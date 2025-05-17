@@ -67,17 +67,26 @@ cursor.execute(
     '''
     CREATE VIEW IF NOT EXISTS book_availability AS
     SELECT 
-        b.book_id,
-        CASE
-            WHEN MAX(l.loan_date) IS NULL THEN 1
-            WHEN MAX(l.return_date) >= MAX(l.loan_date) THEN 1
-            ELSE 0
-        END AS available
+    b.book_id,
+    b.title,
+    b.author,
+    CASE
+        WHEN l.latest_loan_date IS NULL THEN 1
+        WHEN l.latest_return_date >= l.latest_loan_date THEN 1
+        ELSE 0
+    END AS available
     FROM books b
-    LEFT JOIN loans l ON b.book_id = l.book_id
-    GROUP BY b.book_id
+    LEFT JOIN (
+    SELECT 
+        book_id,
+        MAX(loan_date) AS latest_loan_date,
+        MAX(return_date) AS latest_return_date
+    FROM loans
+    GROUP BY book_id
+    ) l ON b.book_id = l.book_id
     '''
 )
+
 conn.commit()
 conn.close()
 print("Database and tables created successfully.")
