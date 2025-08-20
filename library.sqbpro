@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="library.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="2237"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="0" parent="0"/><expanded_item id="1" parent="0"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="loans" custom_title="0" dock_id="1" table="4,5:mainloans"/><dock_state state="000000ff00000000fd0000000100000002000005eb0000038efc0100000001fb000000160064006f0063006b00420072006f00770073006500310100000000000005eb0000011e00ffffff000002970000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="book_availability" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="53"/><column index="2" value="296"/><column index="3" value="156"/><column index="4" value="58"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="loans" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="49"/><column index="2" value="55"/><column index="3" value="52"/><column index="4" value="156"/><column index="5" value="156"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="Alice's loans">-- Alice's loans
+SELECT *
+FROM loans l
+LEFT JOIN (
+	SELECT user_id
+	FROM users u
+	WHERE first_name = 'Alice'
+) u ON l.user_id = u.user_id
+WHERE u.user_id IS NOT NULL</sql><sql name="book count per author">SELECT
+author,
+COUNT(book_id) AS bookCount
+FROM books
+
+GROUP BY author
+ORDER BY bookCount DESC</sql><sql name="avg loan duration per user_id*">-- average loan duration per user_id
+
+SELECT
+user_id,
+COUNT(*) AS loan_count,
+AVG(duration) AS avg_duration
+FROM (SELECT
+user_id,
+book_id,
+loan_date,
+return_date,
+julianday(loan_date) AS ldt ,
+julianday(return_date) AS rdt ,
+julianday(return_date) - julianday(loan_date) AS duration
+FROM loans
+WHERE return_date IS NOT NULL
+) AS source
+GROUP BY user_id</sql><sql name="most borrowed book title per user first name*">-- most borrowed book_id per user_id
+-- most borrowed book *title* per user *first name*
+SELECT
+sq.RowNum,
+sq.user_id,
+sq.book_id,
+sq.myCount,
+u.first_name,
+b.title
+FROM(
+SELECT
+row_number() OVER (
+	PARTITION BY user_id
+	ORDER BY COUNT(*) DESC
+) RowNum,
+user_id,
+book_id,
+COUNT(book_id) AS myCount
+FROM loans
+GROUP BY user_id, book_id
+) AS sq 
+LEFT JOIN users u ON sq.user_id = u.user_id
+LEFT JOIN books b ON sq.book_id = b.book_id
+WHERE RowNum &lt;=3</sql><current_tab id="0"/></tab_sql></sqlb_project>

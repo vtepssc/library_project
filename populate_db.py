@@ -1,17 +1,29 @@
 import sqlite3
+from werkzeug.security import generate_password_hash
 
 conn = sqlite3.connect('library.db')
 cursor = conn.cursor()
 
 # insert sample users
+usernames_and_passwords = [
+    ("aliceUN", "password123"),
+    ("bobUN", "password456"),
+    ("charlieUN", "password789"),
+    ("davidUN", "password101112"),
+]
+
 users = [
-    ("Alice", "Smith", "alicesmith@example.com", "123-456-7890"),
+    ( "Alice", "Smith", "alicesmith@example.com", "123-456-7890"),
     ("Bob", "Johnson", "bobjohnson@example.com", "234-567-8901"),
     ("Charlie", "Brown", "charliebrown@example.com", "345-678-9012"),
     ("David", "Williams", "davidwilliams@example.com", "456-789-0123"),
 ]
 
-cursor.executemany("INSERT OR IGNORE INTO users (first_name, last_name, email, phone) VALUES (?, ?, ?, ?)", users)
+for i, (username, password) in enumerate(usernames_and_passwords):
+    password_hash = generate_password_hash(password)
+    users[i] = (username, password_hash) + users[i]
+
+cursor.executemany("INSERT OR IGNORE INTO users (username, password_hash, first_name, last_name, email, phone) VALUES (?, ?, ?, ?, ?, ?)", users)
 cursor.execute("SELECT * FROM users")
 rows = cursor.fetchall()
 print("Current users:", rows)

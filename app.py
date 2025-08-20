@@ -1,9 +1,17 @@
-import streamlit as st
+from flask import Flask, render_template
 import sqlite3
-import pandas as pd
 
-st.title("Library Dashboard")
+app = Flask(__name__)
 
-conn = sqlite3.connect('library.db')
-df = pd.read_sql_query("SELECT * FROM books", conn)
-st.dataframe(df)
+@app.route("/")
+def index():
+    conn = sqlite3.connect("library.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM books")
+    books = cursor.fetchall()
+    conn.close()
+    return render_template("index.html", books=books)
+
+if __name__ == "__main__":
+    app.run(debug=True)

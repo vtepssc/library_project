@@ -1,0 +1,12 @@
+<!doctype html>
+<html>
+  <head><title>Library</title></head>
+  <body>
+    <h1>Books</h1>
+    <ul>
+      {% for book in books %}
+        <li>{{ book['title'] }} by {{ book['author'] }}</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
